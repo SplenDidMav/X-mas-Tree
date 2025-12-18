@@ -22,6 +22,9 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 - `src/scene/renderer.ts`: Three.js renderer creation + resize/DPR policy. Keep WebGL settings centralized here.
 - `src/scene/tree.ts`: Tree-mode object construction. Currently a placeholder; later grows into the full tree.
 
+**UI**
+- `src/ui/debugHud.ts`: Minimal developer HUD (toggle with `H`). Displays game state (`mode`, `transformProgress`, `spinVelocity`) and a placeholder hand-tracking status to make debugging faster.
+
 **Tooling / Project**
 - `package.json`: Scripts (`dev`, `build`, `typecheck`) and dependencies. Uses Rollup WASM to avoid native binary issues on macOS arm64.
 - `package-lock.json`: Locked dependency tree; required for reproducible installs.

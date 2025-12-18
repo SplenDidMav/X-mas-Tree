@@ -16,3 +16,18 @@ How to verify (manual + commands):
 - `npm run typecheck`
 - `npm run build`
 - `npm run dev` → open the page and confirm the canvas renders and console is clean (favicon 404 should be gone).
+
+## 2025-12-18 — Step 2 (Debug HUD) Completed
+
+Goal: add a minimal, toggleable debug HUD to show state and hand-tracking status.
+
+Changes made:
+
+- Added `src/ui/debugHud.ts` to render a small HUD and toggle visibility with the `H` key.
+- Wired HUD rendering into the main loop in `src/main.ts`.
+- Added HUD styles in `src/style.css`.
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` → confirm HUD is visible by default and updates; press `H` to toggle; resize the window and confirm the HUD remains visible and canvas still renders.

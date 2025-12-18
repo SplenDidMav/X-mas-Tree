@@ -48,3 +48,31 @@ body {
   display: block;
 }
 
+.debug-hud {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  min-width: 240px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+}
+
+.debug-hud__title {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 6px;
+}
+
+.debug-hud__body {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: pre;
+}
