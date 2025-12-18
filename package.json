@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@types/three": "^0.170.0",
+    "rollup": "npm:@rollup/wasm-node@4.53.5",
     "typescript": "^5.7.2",
     "vite": "^6.0.0"
   }

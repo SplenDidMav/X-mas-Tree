@@ -14,6 +14,8 @@ This checklist defines the **baseline “runs on a clean machine”** expectatio
 
 ## B) Command Checks (must pass)
 
+- Run `npm install` (or `npm ci` if `package-lock.json` exists)  
+  - Pass: local binaries are installed (e.g., `node_modules/.bin/vite`, `node_modules/.bin/tsc`).
 - Run `npm run typecheck`  
   - Pass: exits successfully (no TypeScript errors).
 - Run `npm run build`  
@@ -31,4 +33,3 @@ This checklist defines the **baseline “runs on a clean machine”** expectatio
 
 - No camera access, hand tracking, gestures, uploads, or recording are required at this stage.
 - Performance targets are not enforced yet beyond “does not feel obviously broken”.
-

@@ -28,6 +28,7 @@
 
 - 指令：确认现有脚手架能在干净环境下运行；明确“基础游戏”验收 checklist（写到 `AGENTS.md` 或新建 `docs/mvp-checklist.md`）。
 - 验证测试：
+  - 运行 `npm install`（或 CI 用 `npm ci`）确保本地二进制（`vite`/`tsc`）可用。
   - 运行 `npm run typecheck`、`npm run build`，均应成功退出（无错误码）。
   - 打开 `npm run dev` 的页面，确认能看到画面（canvas 有内容）且控制台无报错。
 

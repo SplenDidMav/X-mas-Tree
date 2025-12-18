@@ -8,8 +8,9 @@ const state = createInitialState();
 
 const canvas = document.querySelector<HTMLCanvasElement>("#scene");
 if (!canvas) throw new Error("Missing #scene canvas");
+const sceneCanvas: HTMLCanvasElement = canvas;
 
-const { renderer, resizeToDisplaySize } = createRenderer(canvas);
+const { renderer, resizeToDisplaySize } = createRenderer(sceneCanvas);
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x050914, 2.5, 10);
@@ -29,7 +30,7 @@ scene.add(tree);
 
 function onResize() {
   resizeToDisplaySize();
-  const { clientWidth, clientHeight } = canvas;
+  const { clientWidth, clientHeight } = sceneCanvas;
   camera.aspect = clientWidth / Math.max(clientHeight, 1);
   camera.updateProjectionMatrix();
 }
@@ -45,4 +46,3 @@ function tick() {
   requestAnimationFrame(tick);
 }
 tick();
-
