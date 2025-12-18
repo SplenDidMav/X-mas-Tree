@@ -151,3 +151,24 @@ How to verify (manual + commands):
   - Open palm toggles PAUSE once (hold does not repeat).
   - Close then open again toggles back.
   - Rapid repeats within cooldown do not spam toggles.
+
+## 2025-12-18 — Step 9 (Swipe Rotation) Completed
+
+Goal: detect horizontal swipe events and map them to rotation speed changes (0–3 rad/s) with thresholding + cooldown.
+
+Changes made:
+
+- Added `src/input/swipe.ts` with a simple swipe detector based on palm center X velocity.
+- Extended `src/core/config.ts` with `CONFIG.swipe` (threshold, cooldown, travel guard, impulse scale).
+- Wired swipe impulses into `src/main.ts` to adjust `spinVelocity` (clamped by the state machine).
+- Extended HUD (`src/ui/debugHud.ts`) to display `swipeVx` for tuning.
+- Updated the placeholder tree to be visually asymmetric (`src/scene/tree.ts`) so rotation is obvious during prototyping.
+- Simplified Tree visibility response to `transformProgress` to a binary show/hide (reduced sensitivity).
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` → Enable camera:
+  - Swipe right increases `spinVelocity`, swipe left decreases it, staying within 0–3.
+  - Small jitter does not constantly trigger; cooldown prevents rapid repeats.
+  - Tree rotation is visually obvious due to the added asymmetric ornament.

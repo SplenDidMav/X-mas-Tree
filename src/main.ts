@@ -6,6 +6,7 @@ import { createSimulatedInput } from "./input/simulatedInput";
 import { createCameraController } from "./input/camera";
 import { createHandsController } from "./input/hands";
 import { computeOpenPalm, computePinchStrength } from "./input/gestures";
+import { createSwipeDetector } from "./input/swipe";
 import { createRenderer } from "./scene/renderer";
 import { createTreePlaceholder } from "./scene/tree";
 import { createDebugHud } from "./ui/debugHud";
@@ -20,6 +21,8 @@ let openPalm: boolean | null = null;
 let lastHandSeenAtMs = 0;
 let lastPauseToggleAtMs = 0;
 let prevOpenPalm = false;
+let lastSwipeVelocityX: number | null = null;
+const swipeDetector = createSwipeDetector();
 
 const canvas = document.querySelector<HTMLCanvasElement>("#scene");
 if (!canvas) throw new Error("Missing #scene canvas");
@@ -54,6 +57,12 @@ const handsController = createHandsController({
     openPalm = computeOpenPalm(frame);
 
     const now = performance.now();
+    const swipe = swipeDetector.update(frame, now);
+    if (swipe) {
+      lastSwipeVelocityX = swipe.velocityX;
+      state = applyIntent(state, { spinVelocity: state.spinVelocity + swipe.deltaSpinVelocity });
+    }
+
     const isOpen = openPalm === true;
     if (
       isOpen &&
@@ -68,6 +77,11 @@ const handsController = createHandsController({
     if (pinchStrength != null) {
       lastHandSeenAtMs = performance.now();
       state = applyIntent(state, { transformProgress: 1 - pinchStrength });
+    }
+
+    if (!frame.hasHand) {
+      swipeDetector.reset();
+      lastSwipeVelocityX = null;
     }
   },
   onError(error) {
@@ -156,20 +170,28 @@ function tick() {
   const rotationVelocity = isPaused ? 0 : state.spinVelocity;
   tree.rotation.y += rotationVelocity * dt;
 
-  const scale = 1 - progress * 0.65;
+  // For early prototyping, keep it simple: tree mainly fades/disappears as we "open".
+  const scale = 1;
   tree.scale.setScalar(scale);
-  tree.position.y = -progress * 0.25;
+  tree.position.y = 0;
   tree.traverse((obj) => {
     if (!(obj instanceof THREE.Mesh)) return;
     const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
     for (const material of materials) {
       if (material instanceof THREE.Material) {
-        material.opacity = 1 - progress * 0.85;
+        material.opacity = progress >= 0.5 ? 0 : 1;
       }
     }
   });
 
-  debugHud.render({ state, cameraStatus, handsStatus, pinchStrength, openPalm });
+  debugHud.render({
+    state,
+    cameraStatus,
+    handsStatus,
+    pinchStrength,
+    openPalm,
+    swipeVelocityX: lastSwipeVelocityX
+  });
   renderer.render(scene, viewCamera);
   requestAnimationFrame(tick);
 }

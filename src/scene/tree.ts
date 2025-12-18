@@ -17,6 +17,18 @@ export function createTreePlaceholder() {
   foliage.position.y = 0.8;
   group.add(foliage);
 
+  // Small asymmetric ornament so rotation is visually obvious during early prototyping.
+  const ornament = new THREE.Mesh(
+    new THREE.SphereGeometry(0.06, 16, 16),
+    new THREE.MeshStandardMaterial({
+      color: 0xff4d6d,
+      emissive: 0x33000f,
+      roughness: 0.4,
+      metalness: 0.2
+    })
+  );
+  ornament.position.set(0.28, 1.05, 0.12);
+  group.add(ornament);
+
   return group;
 }
-

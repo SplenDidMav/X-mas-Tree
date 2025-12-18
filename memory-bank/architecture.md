@@ -20,7 +20,7 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 
 **Scene**
 - `src/scene/renderer.ts`: Three.js renderer creation + resize/DPR policy. Keep WebGL settings centralized here.
-- `src/scene/tree.ts`: Tree-mode object construction. Currently a placeholder; later grows into the full tree.
+- `src/scene/tree.ts`: Tree-mode object construction. Currently a placeholder; includes a small asymmetric ornament to make rotation visually obvious during early development.
 
 **UI**
 - `src/ui/debugHud.ts`: Minimal developer HUD (toggle with `H`). Displays game state (`mode`, `transformProgress`, `spinVelocity`) and a placeholder hand-tracking status to make debugging faster.
