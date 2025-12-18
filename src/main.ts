@@ -3,12 +3,14 @@ import "./style.css";
 import { applyIntent, createInitialState } from "./core/stateMachine";
 import { createSimulatedInput } from "./input/simulatedInput";
 import { createCameraController } from "./input/camera";
+import { createHandsController } from "./input/hands";
 import { createRenderer } from "./scene/renderer";
 import { createTreePlaceholder } from "./scene/tree";
 import { createDebugHud } from "./ui/debugHud";
 import { createControls } from "./ui/controls";
 
 let state = createInitialState();
+let cameraStatus: "not-started" | "starting" | "running" | "stopped" | "error" = "not-started";
 let handsStatus: "not-started" | "loading" | "tracking" | "lost" | "error" = "not-started";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#scene");
@@ -18,25 +20,11 @@ const sceneCanvas: HTMLCanvasElement = canvas;
 const { renderer, resizeToDisplaySize } = createRenderer(sceneCanvas);
 const debugHud = createDebugHud();
 
-function mapCameraStatusToHandsStatus(
-  status: "not-started" | "starting" | "running" | "stopped" | "error"
-): typeof handsStatus {
-  return status === "starting"
-    ? "loading"
-    : status === "running"
-      ? "tracking"
-      : status === "error"
-        ? "error"
-        : status === "stopped"
-          ? "lost"
-          : "not-started";
-}
-
 let setControlsError: (message: string | null) => void = () => {};
 
 const cameraController = createCameraController({
   onStatusChange(status) {
-    handsStatus = mapCameraStatusToHandsStatus(status);
+    cameraStatus = status;
   },
   onError(error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -45,10 +33,27 @@ const cameraController = createCameraController({
 });
 cameraController.start();
 
+const handsController = createHandsController({
+  video: cameraController.getVideoElement(),
+  onStatusChange(status) {
+    handsStatus = status;
+  },
+  onError(error) {
+    const message = error instanceof Error ? error.message : String(error);
+    setControlsError(message);
+  }
+});
+handsController.start();
+
 const controls = createControls({
   camera: cameraController,
   onCameraStatus(status) {
-    handsStatus = mapCameraStatusToHandsStatus(status);
+    cameraStatus = status;
+    if (status === "running") {
+      void handsController.startTracking();
+    } else if (status === "stopped" || status === "error") {
+      handsController.stopTracking();
+    }
   }
 });
 setControlsError = controls.setError;
@@ -117,7 +122,7 @@ function tick() {
     }
   });
 
-  debugHud.render({ state, handsStatus });
+  debugHud.render({ state, cameraStatus, handsStatus });
   renderer.render(scene, viewCamera);
   requestAnimationFrame(tick);
 }

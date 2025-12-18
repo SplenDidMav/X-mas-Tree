@@ -30,6 +30,7 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 - `src/input/types.ts`: Input lifecycle contract (`start/stop/dispose`) and the intent sink type used to feed the state machine.
 - `src/input/simulatedInput.ts`: Temporary non-camera controls to drive the game: wheel → `transformProgress`, drag/keys → `spinVelocity`, Space → pause toggle.
 - `src/input/camera.ts`: Camera controller (permissions + stream lifecycle). Owns the preview `<video>` element and ensures resources are released on stop (track.stop + clear srcObject).
+- `src/input/hands.ts`: MediaPipe Hands controller that loads the model, selects the right hand when available, and publishes “hand present + landmarks” frames (no gesture recognition yet).
 
 **Tooling / Project**
 - `package.json`: Scripts (`dev`, `build`, `typecheck`) and dependencies. Uses Rollup WASM to avoid native binary issues on macOS arm64.
@@ -38,6 +39,8 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 - `vite.config.ts`: Vite dev server config.
 - `.gitignore`: Excludes build outputs and local artifacts.
 - `public/favicon.ico`: Placeholder favicon to keep dev console clean.
+- `scripts/copy-mediapipe-assets.mjs`: Copies required `@mediapipe/hands` runtime assets into `public/mediapipe/hands/` so the app can load the model without a CDN.
+- `public/mediapipe/hands/`: Generated MediaPipe assets (committed) served by Vite at runtime.
 
 **Docs**
 - `memory-bank/implementation-plan.md`: Single source of truth for the step-by-step plan.

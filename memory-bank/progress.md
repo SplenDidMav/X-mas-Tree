@@ -72,3 +72,27 @@ How to verify (manual + commands):
   - Enable camera → permission prompt appears; allow → preview can show live video and `hands` becomes `tracking`.
   - Stop camera → preview stops and system camera indicator turns off.
   - Deny permission → app does not crash; error message is shown; `hands` becomes `error`.
+
+## 2025-12-18 — Step 5 (MediaPipe Hands Keypoints) Completed
+
+Goal: connect MediaPipe Hands and reliably produce “hand present?” + landmark array validity, without gesture logic yet.
+
+Changes made:
+
+- Added `src/input/hands.ts` with a `HandsController` that:
+  - Loads MediaPipe Hands (local assets) and reports status: `not-started | loading | tracking | lost | error`
+  - Selects a single hand with **right-hand preference** (falls back to the first detected hand)
+  - Emits a `HandsFrame` with `hasHand`, `handedness`, and `landmarks`
+- Added a local asset copy step:
+  - `scripts/copy-mediapipe-assets.mjs` copies required files into `public/mediapipe/hands/`
+  - `package.json` runs this via `postinstall` (and provides `npm run mediapipe:assets`)
+- Updated the HUD (`src/ui/debugHud.ts`) to show both camera status and hands status.
+- Wired hands tracking to the camera lifecycle in `src/main.ts` (start tracking when camera is running; stop on stop/error).
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` and verify:
+  - Run `npm run mediapipe:assets` if needed (assets exist under `public/mediapipe/hands/`).
+  - Enable camera → `hands` transitions through `loading`, then shows `tracking` when a hand is in frame and `lost` when removed.
+  - Repeated in/out of frame does not crash the page or spam uncaught errors from the app code.

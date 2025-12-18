@@ -1,9 +1,10 @@
 import type { GameState } from "../core/stateMachine";
-
-export type HandsStatus = "not-started" | "loading" | "tracking" | "lost" | "error";
+import type { CameraStatus } from "../input/camera";
+import type { HandsStatus } from "../input/hands";
 
 export interface DebugHudModel {
   state: GameState;
+  cameraStatus: CameraStatus;
   handsStatus: HandsStatus;
 }
 
@@ -33,11 +34,12 @@ export function createDebugHud() {
   }
 
   function render(model: DebugHudModel) {
-    const { state, handsStatus } = model;
+    const { state, cameraStatus, handsStatus } = model;
     pre.textContent =
       `mode: ${state.mode}\n` +
       `transformProgress: ${state.transformProgress.toFixed(3)}\n` +
       `spinVelocity: ${state.spinVelocity.toFixed(3)} rad/s\n` +
+      `camera: ${cameraStatus}\n` +
       `hands: ${handsStatus}\n`;
   }
 
@@ -48,4 +50,3 @@ export function createDebugHud() {
 
   return { render, setVisible };
 }
-

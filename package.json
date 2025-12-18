@@ -6,7 +6,9 @@
     "dev": "vite",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mediapipe:assets": "node scripts/copy-mediapipe-assets.mjs",
+    "postinstall": "npm run mediapipe:assets"
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1675464414",
