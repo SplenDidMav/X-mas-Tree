@@ -2,9 +2,11 @@ import * as THREE from "three";
 import "./style.css";
 import { applyIntent, createInitialState } from "./core/stateMachine";
 import { createSimulatedInput } from "./input/simulatedInput";
+import { createCameraController } from "./input/camera";
 import { createRenderer } from "./scene/renderer";
 import { createTreePlaceholder } from "./scene/tree";
 import { createDebugHud } from "./ui/debugHud";
+import { createControls } from "./ui/controls";
 
 let state = createInitialState();
 let handsStatus: "not-started" | "loading" | "tracking" | "lost" | "error" = "not-started";
@@ -16,6 +18,42 @@ const sceneCanvas: HTMLCanvasElement = canvas;
 const { renderer, resizeToDisplaySize } = createRenderer(sceneCanvas);
 const debugHud = createDebugHud();
 
+function mapCameraStatusToHandsStatus(
+  status: "not-started" | "starting" | "running" | "stopped" | "error"
+): typeof handsStatus {
+  return status === "starting"
+    ? "loading"
+    : status === "running"
+      ? "tracking"
+      : status === "error"
+        ? "error"
+        : status === "stopped"
+          ? "lost"
+          : "not-started";
+}
+
+let setControlsError: (message: string | null) => void = () => {};
+
+const cameraController = createCameraController({
+  onStatusChange(status) {
+    handsStatus = mapCameraStatusToHandsStatus(status);
+  },
+  onError(error) {
+    const message = error instanceof Error ? error.message : String(error);
+    setControlsError(message);
+  }
+});
+cameraController.start();
+
+const controls = createControls({
+  camera: cameraController,
+  onCameraStatus(status) {
+    handsStatus = mapCameraStatusToHandsStatus(status);
+  }
+});
+setControlsError = controls.setError;
+document.body.appendChild(controls.element);
+
 const input = createSimulatedInput((intent) => {
   state = applyIntent(state, intent);
 });
@@ -24,8 +62,8 @@ input.start();
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x050914, 2.5, 10);
 
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-camera.position.set(0, 1.1, 3.2);
+const viewCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+viewCamera.position.set(0, 1.1, 3.2);
 
 const ambient = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambient);
@@ -50,8 +88,8 @@ tree.traverse((obj) => {
 function onResize() {
   resizeToDisplaySize();
   const { clientWidth, clientHeight } = sceneCanvas;
-  camera.aspect = clientWidth / Math.max(clientHeight, 1);
-  camera.updateProjectionMatrix();
+  viewCamera.aspect = clientWidth / Math.max(clientHeight, 1);
+  viewCamera.updateProjectionMatrix();
 }
 
 window.addEventListener("resize", onResize);
@@ -80,7 +118,7 @@ function tick() {
   });
 
   debugHud.render({ state, handsStatus });
-  renderer.render(scene, camera);
+  renderer.render(scene, viewCamera);
   requestAnimationFrame(tick);
 }
 tick();

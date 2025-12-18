@@ -51,3 +51,24 @@ How to verify (manual + commands):
   - Mouse wheel adjusts `transformProgress` (tree scales/fades/moves; HUD mode transitions TREE↔TRANSFORM↔TORNADO).
   - Drag left/right or Arrow keys adjust `spinVelocity` (0–3 rad/s) and rotation speed changes.
   - Space toggles pause (rotation stops in PAUSE and resumes after).
+
+## 2025-12-18 — Step 4 (Camera Permissions + Preview) Completed
+
+Goal: add camera start/stop handling, permissions flow, and an optional preview UI.
+
+Changes made:
+
+- Added `src/input/camera.ts` with a `CameraController` to manage `getUserMedia`, a preview `<video>`, and proper stop/dispose behavior (stops tracks and clears `srcObject`).
+- Added `src/ui/controls.ts` with a small control panel:
+  - Enable/Stop camera buttons (user-driven permission flow)
+  - Show/Hide preview toggle (default hidden)
+  - Status + error display
+- Wired camera status into the debug HUD’s `hands` field in `src/main.ts`.
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` and verify:
+  - Enable camera → permission prompt appears; allow → preview can show live video and `hands` becomes `tracking`.
+  - Stop camera → preview stops and system camera indicator turns off.
+  - Deny permission → app does not crash; error message is shown; `hands` becomes `error`.
