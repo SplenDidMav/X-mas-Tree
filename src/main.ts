@@ -1,9 +1,11 @@
 import * as THREE from "three";
 import "./style.css";
 import { applyIntent, createInitialState } from "./core/stateMachine";
+import { CONFIG } from "./core/config";
 import { createSimulatedInput } from "./input/simulatedInput";
 import { createCameraController } from "./input/camera";
 import { createHandsController } from "./input/hands";
+import { computePinchStrength } from "./input/gestures";
 import { createRenderer } from "./scene/renderer";
 import { createTreePlaceholder } from "./scene/tree";
 import { createDebugHud } from "./ui/debugHud";
@@ -13,6 +15,8 @@ import { createLandmarksOverlay } from "./ui/landmarksOverlay";
 let state = createInitialState();
 let cameraStatus: "not-started" | "starting" | "running" | "stopped" | "error" = "not-started";
 let handsStatus: "not-started" | "loading" | "tracking" | "lost" | "error" = "not-started";
+let pinchStrength: number | null = null;
+let lastHandSeenAtMs = 0;
 
 const canvas = document.querySelector<HTMLCanvasElement>("#scene");
 if (!canvas) throw new Error("Missing #scene canvas");
@@ -43,6 +47,11 @@ const handsController = createHandsController({
   },
   onFrame(frame) {
     landmarksOverlay.setFrame(frame);
+    pinchStrength = computePinchStrength(frame);
+    if (pinchStrength != null) {
+      lastHandSeenAtMs = performance.now();
+      state = applyIntent(state, { transformProgress: 1 - pinchStrength });
+    }
   },
   onError(error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -117,6 +126,16 @@ function tick() {
   const isPaused = state.mode === "PAUSE";
   const progress = state.transformProgress;
 
+  // If we lose the hand, avoid abrupt jumps: hold briefly, then gently decay towards TREE.
+  if (handsStatus === "lost") {
+    const now = performance.now();
+    const timeSinceSeen = now - lastHandSeenAtMs;
+    if (timeSinceSeen > CONFIG.handLost.decayDelayMs) {
+      const next = Math.max(0, state.transformProgress - CONFIG.handLost.decayPerSecond * dt);
+      if (next !== state.transformProgress) state = applyIntent(state, { transformProgress: next });
+    }
+  }
+
   const rotationVelocity = isPaused ? 0 : state.spinVelocity;
   tree.rotation.y += rotationVelocity * dt;
 
@@ -133,7 +152,7 @@ function tick() {
     }
   });
 
-  debugHud.render({ state, cameraStatus, handsStatus });
+  debugHud.render({ state, cameraStatus, handsStatus, pinchStrength });
   renderer.render(scene, viewCamera);
   requestAnimationFrame(tick);
 }

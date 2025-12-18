@@ -112,3 +112,23 @@ How to verify (manual + commands):
 - `npm run dev` → Enable camera → Show preview → Show keypoints:
   - Overlay follows the hand and matches camera orientation (no mirroring).
   - Hiding the overlay clears it and avoids extra draw work.
+
+## 2025-12-18 — Step 7 (Pinch Signal) Completed
+
+Goal: produce a stable pinch-strength signal (0–1) and use it to drive transform progress (Tree ⇄ Tornado) without gesture logic beyond pinch.
+
+Changes made:
+
+- Added `src/input/gestures.ts` to compute `pinchStrength` from MediaPipe landmarks (thumb tip ↔ index tip distance, normalized by hand scale).
+- Extended `src/core/config.ts` with pinch mapping thresholds and a “hand lost” decay policy (hold briefly, then drift back to TREE).
+- Wired pinch into `src/main.ts`:
+  - `transformProgress = 1 - pinchStrength` (linear mapping; no smoothing yet)
+  - When the hand is lost, progress decays gradually after a short delay to avoid abrupt jumps
+- Extended `src/ui/debugHud.ts` to display the live `pinch` value for tuning.
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` → Enable camera:
+  - Pinch/Release changes the HUD `pinch` value and drives `transformProgress` (tree visibly responds).
+  - Remove hand from frame: progress holds briefly, then eases back toward TREE.

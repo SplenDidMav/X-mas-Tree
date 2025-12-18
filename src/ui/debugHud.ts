@@ -6,6 +6,7 @@ export interface DebugHudModel {
   state: GameState;
   cameraStatus: CameraStatus;
   handsStatus: HandsStatus;
+  pinchStrength?: number | null;
 }
 
 export function createDebugHud() {
@@ -34,13 +35,14 @@ export function createDebugHud() {
   }
 
   function render(model: DebugHudModel) {
-    const { state, cameraStatus, handsStatus } = model;
+    const { state, cameraStatus, handsStatus, pinchStrength } = model;
     pre.textContent =
       `mode: ${state.mode}\n` +
       `transformProgress: ${state.transformProgress.toFixed(3)}\n` +
       `spinVelocity: ${state.spinVelocity.toFixed(3)} rad/s\n` +
       `camera: ${cameraStatus}\n` +
-      `hands: ${handsStatus}\n`;
+      `hands: ${handsStatus}\n` +
+      `pinch: ${pinchStrength == null ? "-" : pinchStrength.toFixed(3)}\n`;
   }
 
   document.body.appendChild(root);
