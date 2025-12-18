@@ -25,6 +25,7 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 **UI**
 - `src/ui/debugHud.ts`: Minimal developer HUD (toggle with `H`). Displays game state (`mode`, `transformProgress`, `spinVelocity`) and a placeholder hand-tracking status to make debugging faster.
 - `src/ui/controls.ts`: Small control panel for camera start/stop, preview toggle, and error/status messaging.
+- `src/ui/landmarksOverlay.ts`: Dev-only canvas overlay that draws MediaPipe hand landmarks over the preview video to validate tracking + coordinate alignment.
 
 **Input**
 - `src/input/types.ts`: Input lifecycle contract (`start/stop/dispose`) and the intent sink type used to feed the state machine.

@@ -3,6 +3,8 @@ import type { CameraController, CameraStatus } from "../input/camera";
 export interface ControlsOptions {
   camera: CameraController;
   onCameraStatus?: (status: CameraStatus) => void;
+  isDev?: boolean;
+  onToggleKeypoints?: (visible: boolean) => void;
 }
 
 function formatCameraStatus(status: CameraStatus) {
@@ -47,6 +49,16 @@ export function createControls(opts: ControlsOptions) {
   previewBtn.textContent = "Show preview";
   row.appendChild(previewBtn);
 
+  let keypointsBtn: HTMLButtonElement | null = null;
+  let keypointsVisible = false;
+  if (opts.isDev) {
+    keypointsBtn = document.createElement("button");
+    keypointsBtn.className = "controls__button";
+    keypointsBtn.type = "button";
+    keypointsBtn.textContent = "Show keypoints";
+    row.appendChild(keypointsBtn);
+  }
+
   const statusLine = document.createElement("div");
   statusLine.className = "controls__status";
   root.appendChild(statusLine);
@@ -58,7 +70,11 @@ export function createControls(opts: ControlsOptions) {
   let previewVisible = false;
   const video = opts.camera.getVideoElement();
   video.style.display = "none";
-  root.appendChild(video);
+
+  const previewWrap = document.createElement("div");
+  previewWrap.className = "controls__preview";
+  previewWrap.appendChild(video);
+  root.appendChild(previewWrap);
 
   function setStatus(status: CameraStatus) {
     statusLine.textContent = formatCameraStatus(status);
@@ -92,10 +108,16 @@ export function createControls(opts: ControlsOptions) {
     previewBtn.textContent = previewVisible ? "Hide preview" : "Show preview";
   });
 
+  keypointsBtn?.addEventListener("click", () => {
+    keypointsVisible = !keypointsVisible;
+    keypointsBtn!.textContent = keypointsVisible ? "Hide keypoints" : "Show keypoints";
+    opts.onToggleKeypoints?.(keypointsVisible);
+  });
+
   return {
     element: root,
+    previewWrap,
     setStatus,
     setError
   };
 }
-

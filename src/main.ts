@@ -8,6 +8,7 @@ import { createRenderer } from "./scene/renderer";
 import { createTreePlaceholder } from "./scene/tree";
 import { createDebugHud } from "./ui/debugHud";
 import { createControls } from "./ui/controls";
+import { createLandmarksOverlay } from "./ui/landmarksOverlay";
 
 let state = createInitialState();
 let cameraStatus: "not-started" | "starting" | "running" | "stopped" | "error" = "not-started";
@@ -33,10 +34,15 @@ const cameraController = createCameraController({
 });
 cameraController.start();
 
+const landmarksOverlay = createLandmarksOverlay({ video: cameraController.getVideoElement() });
+
 const handsController = createHandsController({
   video: cameraController.getVideoElement(),
   onStatusChange(status) {
     handsStatus = status;
+  },
+  onFrame(frame) {
+    landmarksOverlay.setFrame(frame);
   },
   onError(error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -47,6 +53,10 @@ handsController.start();
 
 const controls = createControls({
   camera: cameraController,
+  isDev: import.meta.env.DEV,
+  onToggleKeypoints(visible) {
+    landmarksOverlay.setVisible(visible);
+  },
   onCameraStatus(status) {
     cameraStatus = status;
     if (status === "running") {
@@ -58,6 +68,7 @@ const controls = createControls({
 });
 setControlsError = controls.setError;
 document.body.appendChild(controls.element);
+controls.previewWrap.appendChild(landmarksOverlay.element);
 
 const input = createSimulatedInput((intent) => {
   state = applyIntent(state, intent);

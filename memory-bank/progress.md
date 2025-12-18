@@ -96,3 +96,19 @@ How to verify (manual + commands):
   - Run `npm run mediapipe:assets` if needed (assets exist under `public/mediapipe/hands/`).
   - Enable camera → `hands` transitions through `loading`, then shows `tracking` when a hand is in frame and `lost` when removed.
   - Repeated in/out of frame does not crash the page or spam uncaught errors from the app code.
+
+## 2025-12-18 — Step 6 (Landmark Debug Overlay) Completed
+
+Goal: provide a developer-only visualization layer for MediaPipe hand landmarks to validate coordinate alignment and tracking quality.
+
+Changes made:
+
+- Added `src/ui/landmarksOverlay.ts` to draw landmark points + connections over the camera preview.
+- Added a dev-only toggle button (“Show/Hide keypoints”) to `src/ui/controls.ts` and layered the overlay inside the preview container.
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` → Enable camera → Show preview → Show keypoints:
+  - Overlay follows the hand and matches camera orientation (no mirroring).
+  - Hiding the overlay clears it and avoids extra draw work.
