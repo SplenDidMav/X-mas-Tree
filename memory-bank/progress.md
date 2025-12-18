@@ -132,3 +132,22 @@ How to verify (manual + commands):
 - `npm run dev` → Enable camera:
   - Pinch/Release changes the HUD `pinch` value and drives `transformProgress` (tree visibly responds).
   - Remove hand from frame: progress holds briefly, then eases back toward TREE.
+
+## 2025-12-18 — Step 8 (Open Palm Pause Toggle) Completed
+
+Goal: implement the open-palm gesture as a pause toggle with cooldown, and ensure pause exits back to the correct derived mode.
+
+Changes made:
+
+- Added `computeOpenPalm()` in `src/input/gestures.ts` (conservative heuristic: all four fingers extended).
+- Added `CONFIG.openPalm.cooldownMs` and implemented an edge-triggered toggle (only triggers on the transition into open palm, plus cooldown).
+- Updated `applyIntent()` in `src/core/stateMachine.ts` so unpausing returns to the mode derived from the current `transformProgress` (instead of forcing TREE).
+- Extended the HUD (`src/ui/debugHud.ts`) to display the live `openPalm` boolean.
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` → Enable camera:
+  - Open palm toggles PAUSE once (hold does not repeat).
+  - Close then open again toggles back.
+  - Rapid repeats within cooldown do not spam toggles.

@@ -37,3 +37,20 @@ export function computePinchStrength(frame: HandsFrame): number | null {
   return clamp(1 - t, 0, 1);
 }
 
+/**
+ * Returns true when the hand looks like an open palm (fingers extended).
+ * Uses a simple heuristic to keep false positives low.
+ */
+export function computeOpenPalm(frame: HandsFrame): boolean | null {
+  if (!frame.hasHand || !frame.landmarks) return null;
+  const lm = frame.landmarks;
+  if (lm.length < 21) return null;
+
+  const indexExtended = lm[8].y < lm[6].y;
+  const middleExtended = lm[12].y < lm[10].y;
+  const ringExtended = lm[16].y < lm[14].y;
+  const pinkyExtended = lm[20].y < lm[18].y;
+
+  // Conservative: require all four fingers extended.
+  return indexExtended && middleExtended && ringExtended && pinkyExtended;
+}

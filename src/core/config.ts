@@ -4,6 +4,9 @@ export const CONFIG = {
     minNormalizedDistance: 0.2,
     maxNormalizedDistance: 0.7
   },
+  openPalm: {
+    cooldownMs: 600
+  },
   handLost: {
     decayDelayMs: 1200,
     decayPerSecond: 0.35

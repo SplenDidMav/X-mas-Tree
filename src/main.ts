@@ -5,7 +5,7 @@ import { CONFIG } from "./core/config";
 import { createSimulatedInput } from "./input/simulatedInput";
 import { createCameraController } from "./input/camera";
 import { createHandsController } from "./input/hands";
-import { computePinchStrength } from "./input/gestures";
+import { computeOpenPalm, computePinchStrength } from "./input/gestures";
 import { createRenderer } from "./scene/renderer";
 import { createTreePlaceholder } from "./scene/tree";
 import { createDebugHud } from "./ui/debugHud";
@@ -16,7 +16,10 @@ let state = createInitialState();
 let cameraStatus: "not-started" | "starting" | "running" | "stopped" | "error" = "not-started";
 let handsStatus: "not-started" | "loading" | "tracking" | "lost" | "error" = "not-started";
 let pinchStrength: number | null = null;
+let openPalm: boolean | null = null;
 let lastHandSeenAtMs = 0;
+let lastPauseToggleAtMs = 0;
+let prevOpenPalm = false;
 
 const canvas = document.querySelector<HTMLCanvasElement>("#scene");
 if (!canvas) throw new Error("Missing #scene canvas");
@@ -48,6 +51,20 @@ const handsController = createHandsController({
   onFrame(frame) {
     landmarksOverlay.setFrame(frame);
     pinchStrength = computePinchStrength(frame);
+    openPalm = computeOpenPalm(frame);
+
+    const now = performance.now();
+    const isOpen = openPalm === true;
+    if (
+      isOpen &&
+      !prevOpenPalm &&
+      now - lastPauseToggleAtMs >= CONFIG.openPalm.cooldownMs
+    ) {
+      lastPauseToggleAtMs = now;
+      state = applyIntent(state, { togglePause: true });
+    }
+    prevOpenPalm = isOpen;
+
     if (pinchStrength != null) {
       lastHandSeenAtMs = performance.now();
       state = applyIntent(state, { transformProgress: 1 - pinchStrength });
@@ -152,7 +169,7 @@ function tick() {
     }
   });
 
-  debugHud.render({ state, cameraStatus, handsStatus, pinchStrength });
+  debugHud.render({ state, cameraStatus, handsStatus, pinchStrength, openPalm });
   renderer.render(scene, viewCamera);
   requestAnimationFrame(tick);
 }

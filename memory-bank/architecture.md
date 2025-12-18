@@ -32,7 +32,7 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 - `src/input/simulatedInput.ts`: Temporary non-camera controls to drive the game: wheel → `transformProgress`, drag/keys → `spinVelocity`, Space → pause toggle.
 - `src/input/camera.ts`: Camera controller (permissions + stream lifecycle). Owns the preview `<video>` element and ensures resources are released on stop (track.stop + clear srcObject).
 - `src/input/hands.ts`: MediaPipe Hands controller that loads the model, selects the right hand when available, and publishes “hand present + landmarks” frames (no gesture recognition yet).
-- `src/input/gestures.ts`: Derived gesture signals from landmarks. Currently computes a linear `pinchStrength` used to drive `transformProgress`.
+- `src/input/gestures.ts`: Derived gesture signals from landmarks. Currently computes `pinchStrength` (drives `transformProgress`) and `openPalm` (toggles PAUSE with cooldown).
 
 **Tooling / Project**
 - `package.json`: Scripts (`dev`, `build`, `typecheck`) and dependencies. Uses Rollup WASM to avoid native binary issues on macOS arm64.
