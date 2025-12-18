@@ -31,3 +31,23 @@ How to verify (manual + commands):
 
 - `npm run typecheck`
 - `npm run dev` → confirm HUD is visible by default and updates; press `H` to toggle; resize the window and confirm the HUD remains visible and canvas still renders.
+
+## 2025-12-18 — Step 3 (Input Pipeline Skeleton) Completed
+
+Goal: introduce an input layer with a consistent lifecycle and a simulated input source so the game can be exercised without camera/hand tracking.
+
+Changes made:
+
+- Added `src/input/` with:
+  - `types.ts`: lifecycle interface + an intent sink contract.
+  - `simulatedInput.ts`: mouse/keyboard controls that emit intent (`transformProgress`, `spinVelocity`, pause toggle).
+- Extended `src/core/stateMachine.ts` with `GameIntent` and `applyIntent()` to derive mode from intent values.
+- Wired the simulated input into `src/main.ts` and applied state to the scene (basic scale/opacity/position response + pause stops rotation) so changes are visible.
+
+How to verify (manual + commands):
+
+- `npm run typecheck`
+- `npm run dev` and verify:
+  - Mouse wheel adjusts `transformProgress` (tree scales/fades/moves; HUD mode transitions TREE↔TRANSFORM↔TORNADO).
+  - Drag left/right or Arrow keys adjust `spinVelocity` (0–3 rad/s) and rotation speed changes.
+  - Space toggles pause (rotation stops in PAUSE and resumes after).

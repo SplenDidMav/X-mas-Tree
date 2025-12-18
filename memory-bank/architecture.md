@@ -25,6 +25,10 @@ This repository is a Vite + TypeScript + Three.js scaffold intended to evolve in
 **UI**
 - `src/ui/debugHud.ts`: Minimal developer HUD (toggle with `H`). Displays game state (`mode`, `transformProgress`, `spinVelocity`) and a placeholder hand-tracking status to make debugging faster.
 
+**Input**
+- `src/input/types.ts`: Input lifecycle contract (`start/stop/dispose`) and the intent sink type used to feed the state machine.
+- `src/input/simulatedInput.ts`: Temporary non-camera controls to drive the game: wheel → `transformProgress`, drag/keys → `spinVelocity`, Space → pause toggle.
+
 **Tooling / Project**
 - `package.json`: Scripts (`dev`, `build`, `typecheck`) and dependencies. Uses Rollup WASM to avoid native binary issues on macOS arm64.
 - `package-lock.json`: Locked dependency tree; required for reproducible installs.
